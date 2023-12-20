@@ -1,58 +1,3 @@
-const express = require('express');
-const Crypto = require('crypto');
-const fs = require('fs');
-const jwt = require('jsonwebtoken');
-const app = express();
-
-const { Sequelize, DataTypes, Model } = require('sequelize');
-const bodyParser = require("body-parser");
-
-app.use(bodyParser.json());
-
-// Connexion à la base de données
-const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
-    host: 'mysql-sabergrou.alwaysdata.net',
-    dialect: 'mysql',
-});
-
-class Users extends Model {}
-
-Users.init({
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    username: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    role: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    }
-}, {
-    sequelize,
-    modelName: 'wive_teleportme',
-    tableName: 'users'
-});
-
-sequelize.sync()
-    .then(() => {
-        console.log('Database and tables synced');
-    })
-    .catch((err) => {
-        console.error('Error syncing database:', err);
-    });
-
 /*app.get('/login', (req, res) => {
     const auth = req.header('Authorization');
 
@@ -166,26 +111,6 @@ app.get('/renew', (req, res) => {
     res.status(200).send('Renew Successful');
 
 });*/
-
-app.get('/users', (req, res) => {
-    const auth = req.header('Authorization');
-
-    const isBasicAuth = auth && auth.startsWith('Basic ');
-    if (!isBasicAuth) {
-        res.status(401).send('Unauthorized');
-        return;
-    }
-
-    let usersName = [];
-
-    for (const user of Users) {
-        usersName.push(user.username);
-    }
-
-    const decodedValue = JSON.parse(Buffer.from(req.query.token.split('.')[1], 'base64').toString('ascii'));
-
-    res.json(usersName);
-});
 
 /*app.get('/editor', (req, res) => {
     const auth = req.header('Authorization');
