@@ -2,12 +2,58 @@ const express = require('express');
 const Crypto = require('crypto');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const users = require('./users.json');
-
-
 const app = express();
 
-app.get('/login', (req, res) => {
+const { Sequelize, DataTypes, Model } = require('sequelize');
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.json());
+
+// Connexion à la base de données
+const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
+    host: 'mysql-sabergrou.alwaysdata.net',
+    dialect: 'mysql',
+});
+
+class Users extends Model {}
+
+Users.init({
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    role: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
+}, {
+    sequelize,
+    modelName: 'wive_teleportme',
+    tableName: 'users'
+});
+
+sequelize.sync()
+    .then(() => {
+        console.log('Database and tables synced');
+    })
+    .catch((err) => {
+        console.error('Error syncing database:', err);
+    });
+
+/*app.get('/login', (req, res) => {
     const auth = req.header('Authorization');
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
@@ -22,7 +68,7 @@ app.get('/login', (req, res) => {
 
     for (const user of users) {
         let temp_local_password = Crypto.createHash('SHA256').update(local_password).digest('hex');
-        if (user.local_user === local_username && user.local_password === temp_local_password) {
+        if (user.username === local_username && user.local_password === temp_local_password) {
 
             const token = jwt.sign(
                 {
@@ -114,12 +160,12 @@ app.get('/renew', (req, res) => {
         'secret',
         {expiresIn: '1 hour'}
     );
-    
+
     res.json({token});
 
     res.status(200).send('Renew Successful');
 
-});
+});*/
 
 app.get('/users', (req, res) => {
     const auth = req.header('Authorization');
@@ -130,18 +176,18 @@ app.get('/users', (req, res) => {
         return;
     }
 
-let usersName = [];
+    let usersName = [];
 
-    for (const user of users) {
-        usersName.push(user.local_user);
+    for (const user of Users) {
+        usersName.push(user.username);
     }
 
     const decodedValue = JSON.parse(Buffer.from(req.query.token.split('.')[1], 'base64').toString('ascii'));
-    
+
     res.json(usersName);
 });
 
-app.get('/editor', (req, res) => {
+/*app.get('/editor', (req, res) => {
     const auth = req.header('Authorization');
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
@@ -191,7 +237,4 @@ app.get('/editor', (req, res) => {
     } else {
         res.status(401).send('Unauthorized');
     }
-});
-
-app.listen(8888);
-console.log('Listening on 8888');
+});*/
