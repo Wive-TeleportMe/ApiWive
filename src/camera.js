@@ -11,7 +11,7 @@ const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
     host: 'mysql-sabergrou.alwaysdata.net',
     dialect: 'mysql',
   });
-  
+
 
   class Camera extends Model {}
 
@@ -26,16 +26,20 @@ const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
       allowNull: false
     },
     ip: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true
     },
     location: {
-      type: DataTypes.DATE
+      type: DataTypes.STRING,
+      allowNull: false
     },
     user: {
-      type: DataTypes.INTEGER
+      type: DataTypes.STRING,
+      allowNull: true
     },
     password: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true
     }
 }, {
     sequelize,
@@ -50,4 +54,9 @@ sequelize.sync()
   })
   .catch((err) => {
     console.error('Error syncing database:', err);
-  });   
+  });
+
+app.get('/cameras', async (req, res) => {
+  const cameras = await Camera.findAll();
+  res.json(cameras);
+});
