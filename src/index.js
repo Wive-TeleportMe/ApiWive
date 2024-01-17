@@ -4,11 +4,12 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { Sequelize, DataTypes, Model } = require('sequelize');
 const bodyParser = require("body-parser");
-
+const callEndpoint = require ('./camera.js');
 const app = express();
-app.use(bodyParser.json());
-
 const port = 3000;
+
+app.use(bodyParser.json());
+app.use(callEndpoint);
 
 // Connexion à la base de données
 const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
@@ -46,6 +47,37 @@ Users.init({
     tableName: 'users'
 });
 
+// Import de la classe Caméra
+class Camera extends Model {}
+
+Camera.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  ip: {
+    type: DataTypes.STRING
+  },
+  location: {
+    type: DataTypes.STRING
+  },
+  user: {
+    type: DataTypes.INTEGER
+  },
+  password: {
+    type: DataTypes.STRING
+  }
+}, {
+  sequelize,
+  modelName: 'wive_teleportme',
+  tableName: 'camera'
+});
+
 sequelize.sync()
     .then(() => {
         console.log('Database and tables synced');
@@ -66,6 +98,25 @@ app.get('/users', (req, res) => {
     res.json(Users.findAll());
 });
 
+// ////////// CAMERA //////////
+
+// // Récupération d'un film par ID
+// app.get('/cameras/:id', async (req, res) => {
+
+//     let cameras = await Camera.findAll();
+    
+//     const cameraId = parseInt(req.params.id);
+//     const camera = cameras.find((m) => m.id === cameraId);
+    
+//     if (camera) {
+//       res.json(camera);
+//     } else {
+//       res.status(404).json({ message: 'Camera not found' });
+//     }
+//     });
+    
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}!`);
 });
+

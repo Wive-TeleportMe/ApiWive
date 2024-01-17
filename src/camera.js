@@ -51,21 +51,22 @@ sequelize.sync()
   console.error('Error syncing database:', err);
 });
 
-// Récupération d'un film par ID
-app.get('/cameras/:id', async (req, res) => {
+ function callCamera(){
+  // Récupération d'un film par ID
+  app.get('/cameras/:id', async (req, res) => {
 
-let cameras = await Camera.findAll();
+  let cameras = await Camera.findAll();
 
-const cameraId = parseInt(req.params.id);
-const camera = cameras.find((m) => m.id === cameraId);
+  const cameraId = parseInt(req.params.id);
+  const camera = cameras.find((m) => m.id === cameraId);
 
-if (camera) {
-  res.json(camera);
-} else {
-  res.status(404).json({ message: 'Camera not found' });
+  if (camera) {
+    res.json(camera);
+  } else {
+    res.status(404).json({ message: 'Camera not found' });
+  }
+  });
 }
-});
-
 // Modification d'une camera par ID
 app.put('/cameras/:id', async (req, res) => {
 
@@ -108,7 +109,7 @@ if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
 }
 });
 
-// Récupération des films par Nom
+// Récupération des caméra par nom
 app.get('/cameras/namesearch/:name', async (req, res) => {
 const nameQuery = req.params.name;  
 
@@ -164,3 +165,5 @@ try {
 app.listen(port, () => {  
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+module.exports = {callCamera};
