@@ -52,7 +52,6 @@ sequelize.sync()
       console.error('Error syncing database:', err);
     });
 
- function callCamera(){
   // Récupération d'un film par ID
   app.get('/cameras/:id', async (req, res) => {
 
