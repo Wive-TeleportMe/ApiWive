@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 const { Sequelize, DataTypes, Model } = require('sequelize');
+const {readFileSync} = require('fs');
 
 app.use(bodyParser.json());
 
@@ -24,11 +25,15 @@ const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
       type: DataTypes.STRING,
       allowNull: false
     },
-    ip: {
+    url: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
-    location: {
+    latitude: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    longitude: {
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -37,6 +42,14 @@ const sequelize = new Sequelize('wive_teleportme', 'wive', 'WiveTeleportMe13', {
       allowNull: true
     },
     password: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    encoder: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    format: {
       type: DataTypes.STRING,
       allowNull: true
     }
@@ -141,7 +154,7 @@ app.get('/cameras/namesearch/:name', async (req, res) => {
 });
 
 // Récupération des caméras avec pagination
-app.get('/cameras', async (req, res) => {
+app.get('/camerasList', async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Page par défaut : 1
   const pageSize = parseInt(req.query.pageSize) || 10; // Taille de la page par défaut : 10
 
@@ -164,7 +177,75 @@ app.get('/cameras', async (req, res) => {
   }
 });
 
+// Récupération de toutes les caméras
+app.get('/cameras', async (req, res) => {
+  try {
+    const cameras = await Camera.findAll();
 
-app.listen(port, () => {
+    if (cameras.length > 0) {
+      res.json(cameras);
+    } else {
+      res.status(404).json({message: 'No cameras found'});
+    }
+  } catch (error) {
+    console.error('Error fetching cameras:', error);
+    res.status(500).json({message: 'Internal server error'});
+  }
+});
+
+app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);
+
+  /*
+  const USA = JSON.parse(readFileSync('USA.json', 'utf8'));
+
+  let DbNameMax = "55";
+  let DbLatitude = "55";
+  let DbLongitude = "55";
+
+
+  try {
+    await Camera.findOne({
+      order: [
+        ['id', 'DESC']
+      ],
+      attributes: ['id', 'name', 'latitude', 'longitude']
+    }).then(camera => {
+      DbNameMax = camera.name;
+      DbLatitude = camera.latitude;
+      DbLongitude = camera.longitude;
+    });
+  } catch (error) {
+    console.error('Error fetching cameras:', error);
+  }
+
+  try {
+    let flag = false;
+
+    for (let state in USA) {
+      for (let city in USA[state]) {
+        for (let camera in USA[state][city]) {
+          let JSONCamera = USA[state][city][camera];
+          if (!flag) {
+            console.log("Camera already exists");
+          } else {
+            let newCamera = new Camera();
+            newCamera.name = JSONCamera.direction + "," + JSONCamera.description;
+            newCamera.url = JSONCamera.url;
+            newCamera.latitude = JSONCamera.latitude;
+            newCamera.longitude = JSONCamera.longitude;
+            newCamera.encoder = JSONCamera.encoding;
+            newCamera.format = JSONCamera.format;
+            newCamera.save().then(r => console.log(r.name));
+          }
+          if ((DbNameMax === (JSONCamera.direction + "," + JSONCamera.description) || DbNameMax === ("undefined," + JSONCamera.description))
+              || (DbNameMax === "55" && DbLatitude === "55" && DbLongitude === "55")) {
+            flag = true;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching cameras:', error);
+  }*/
 });
