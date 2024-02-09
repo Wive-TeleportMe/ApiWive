@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors')
-const port = 3000;
+const port = 3001;
 const { Sequelize, DataTypes, Model } = require('sequelize');
 const {readFileSync} = require('fs');
 
