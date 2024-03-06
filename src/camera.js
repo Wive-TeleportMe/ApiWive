@@ -161,10 +161,16 @@ app.get('/camerasList', async (req, res) => {
 
   const offset = (page - 1) * pageSize;
 
+  // Remove M3U8 format
   try {
     const cameras = await Camera.findAll({
       offset: offset,
       limit: pageSize,
+      where: {
+        format: {
+          [Sequelize.Op.ne]: 'M3U8',
+        }
+      },
     });
 
     if (cameras.length > 0) {
